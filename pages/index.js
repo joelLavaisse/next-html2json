@@ -2,64 +2,59 @@ import Head from 'next/head'
 import styles from '../styles/Home.module.css'
 
 export default function Home() {
+  const [html, setHtml] = React.useState('');
+  const [json, setJson] = React.useState('');
+
+  const transformHtml = async () => {
+    try {
+      const response = await fetch('/api/minify', {
+        method: 'POST',
+        body: JSON.stringify({ html }),
+        headers: { 'Content-Type': 'application/json' },
+      }).then(res => res.json());
+      setJson(JSON.stringify(response.html));
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  const copyToClipboard = () => {
+    const text = document.getElementById('jsonTextArea');
+    text.select();
+    document.execCommand('copy');
+    console.log(text);
+  };
+
   return (
     <div className={styles.container}>
       <Head>
-        <title>Create Next App</title>
+        <title>Html to JSON with Next</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-
       <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
-
         <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
+          <div className={styles.mainElement}>
+            <div className={styles.mainElement__header}>
+              <h2 className={styles.title}>HTML</h2>
+            </div>
+            <div className={styles.card}>
+              <textarea id="htmlTextArea" type="text" value={html} className={styles.textInput} autoFocus onChange={(e) => setHtml(e.target.value)} />
+            </div>
+          </div>
+          <div className="middle__spacer">
+            <button type="button" onClick={() => transformHtml()}>Convertir</button>
+          </div>
+          <div className={styles.mainElement}>
+            <div className={styles.mainElement__header}>
+              <h2 className={styles.title}>JSON</h2>
+              <button type="button" onClick={() => copyToClipboard()}>Copiar</button>
+            </div>
+            <div className={styles.card}>
+              <textarea id="jsonTextArea" type="text" value={json} className={styles.textInput} readonly />
+            </div>
+          </div>
         </div>
       </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
     </div>
   )
 }
